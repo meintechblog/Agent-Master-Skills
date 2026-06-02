@@ -1,0 +1,19 @@
+[Unit]
+Description=__APP_SLUG__ update recovery (revert interrupted update on boot)
+After=network.target
+Before=__APP_SLUG__.service
+# Runs before the app so a crash-interrupted update is reverted to the last
+# known-good commit before the app starts.
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+Group=root
+ExecStart=/usr/bin/node /opt/__APP_SLUG__/scripts/recovery.mjs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=__APP_SLUG__-recovery
+
+[Install]
+WantedBy=multi-user.target

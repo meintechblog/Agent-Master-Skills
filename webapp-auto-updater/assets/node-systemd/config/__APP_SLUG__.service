@@ -1,0 +1,21 @@
+[Unit]
+Description=__APP_SLUG__ (Node web app)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__SERVICE_USER__
+Group=__SERVICE_USER__
+WorkingDirectory=/opt/__APP_SLUG__
+# Adjust to your entrypoint (server.mjs/index.js/npm start).
+ExecStart=/usr/bin/node /opt/__APP_SLUG__/server.mjs
+Environment=NODE_ENV=production
+Environment=__ENV_PREFIX___PORT=__APP_PORT__
+Restart=on-failure
+RestartSec=3
+# The app writes the update trigger here; the root updater reads it.
+ReadWritePaths=/etc/__APP_SLUG__ /var/lib/__APP_SLUG__
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch for __APP_SLUG__ update triggers (node-systemd mode)
+# Deliberately NO Requires=/PartOf=/BindsTo= the main service unit, so this .path
+# stays active across main-service restarts and the oneshot it activates can
+# restart the main service without being killed as part of its cgroup.
+
+[Path]
+PathModified=/etc/__APP_SLUG__/update-trigger.json
+Unit=__APP_SLUG__-updater.service
+
+[Install]
+WantedBy=multi-user.target

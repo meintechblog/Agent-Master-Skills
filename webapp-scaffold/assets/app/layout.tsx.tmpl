@@ -1,0 +1,30 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "__APP_TITLE__",
+  description: "__APP_DESC__",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="de">
+      <body>
+        <div style={{ maxWidth: 980, margin: "0 auto", padding: "0 1.25rem" }}>
+          <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.4rem 0 1rem" }}>
+            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ width: 26, height: 26, borderRadius: 7, background: "linear-gradient(135deg,#6ee7b7,#5e8bff)", display: "inline-block" }} />
+              <span style={{ fontWeight: 700, letterSpacing: "-0.02em" }}>__APP_NAME__</span>
+            </Link>
+            <nav style={{ display: "flex", gap: 16, fontSize: 14 }}>__NAV_LINKS__</nav>
+          </header>
+          {children}
+          <footer style={{ borderTop: "1px solid var(--border)", margin: "3rem 0 2rem", padding: "1.2rem 0", color: "var(--faint)", fontSize: 12.5 }}>
+            __APP_TITLE__
+          </footer>
+        </div>
+      </body>
+    </html>
+  );
+}

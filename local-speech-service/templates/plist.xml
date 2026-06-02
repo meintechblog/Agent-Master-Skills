@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.local-speech-service</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__VENV_PYTHON__</string>
+    <string>__INSTALL_DIR__/server.py</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>SPEECH_WHISPER_MODEL</key>
+    <string>__WHISPER_MODEL__</string>
+    <key>SPEECH_WHISPER_LANG</key>
+    <string>__WHISPER_LANG__</string>
+    <key>SPEECH_PIPER_BIN</key>
+    <string>__PIPER_BIN__</string>
+    <key>SPEECH_PIPER_VOICES_DIR</key>
+    <string>__VOICES_DIR__</string>
+    <key>SPEECH_PIPER_DEFAULT_VOICE</key>
+    <string>__DEFAULT_VOICE__</string>
+    <key>SPEECH_SERVICE_PORT</key>
+    <string>__PORT__</string>
+    <key>SPEECH_SERVICE_HOST</key>
+    <string>__HOST__</string>
+    <key>SPEECH_CORS_ORIGINS</key>
+    <string>__CORS_ORIGINS__</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__INSTALL_DIR__/service.stdout.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>__INSTALL_DIR__/service.stderr.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+</dict>
+</plist>

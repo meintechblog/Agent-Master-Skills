@@ -1,0 +1,33 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { getDoc } from "@/lib/db";
+import { categoryLabel } from "@/lib/categories";
+
+export const dynamic = "force-dynamic";
+
+export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  let doc;
+  try { doc = await getDoc(slug); } catch { notFound(); }
+  if (!doc) notFound();
+
+  return (
+    <main style={{ padding: "1rem 0 0" }}>
+      <nav style={{ fontSize: 13, color: "var(--faint)", marginBottom: 14, display: "flex", gap: 7, flexWrap: "wrap" }}>
+        <Link href="/" style={{ color: "var(--accent)" }}>Übersicht</Link>
+        {doc.category && <><span>/</span><span>{categoryLabel(doc.category)}</span></>}
+      </nav>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16, fontSize: 13, color: "var(--muted)" }}>
+        <span>{doc.source_type}</span>
+        {doc.article_type && <span>· {doc.article_type}</span>}
+        {doc.source_url && <a href={doc.source_url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>· Quelle ↗</a>}
+      </div>
+      <article className="prose-doc">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{doc.body || "*Kein Inhalt.*"}</ReactMarkdown>
+      </article>
+      <div style={{ marginTop: 26, color: "var(--faint)", fontSize: 12.5 }}>Stand: {doc.last_updated}</div>
+    </main>
+  );
+}

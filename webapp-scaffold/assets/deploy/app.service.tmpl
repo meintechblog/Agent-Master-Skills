@@ -1,0 +1,19 @@
+[Unit]
+Description=__APP_NAME__ Next.js App
+After=network.target postgresql.service __APP_NAME__-embedding.service
+Wants=__APP_NAME__-embedding.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/__APP_NAME__
+Environment=NODE_ENV=production
+Environment=PORT=__PORT__
+Environment=DATABASE_URL=postgres://__DB_USER__:__DB_USER__@127.0.0.1:5432/__DB_NAME__
+Environment=EMBED_URL=http://127.0.0.1:__EMBED_PORT__
+ExecStart=/usr/bin/node /opt/__APP_NAME__/.next/standalone/server.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

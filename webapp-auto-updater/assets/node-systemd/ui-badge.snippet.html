@@ -1,0 +1,43 @@
+<!-- ui-badge.snippet.html (node-systemd) — "update available" badge + one-click apply.
+     Manual-only: indicator polls, Apply fires only on click. -->
+<div id="app-update-badge" style="display:none">
+  <span class="app-update-text"></span>
+  <a class="app-update-notes" target="_blank" rel="noopener">Release&nbsp;Notes</a>
+  <button id="app-update-apply">Jetzt aktualisieren</button>
+</div>
+
+<script>
+async function checkAppUpdate() {
+  try {
+    const u = await (await fetch("/api/update/check")).json();
+    const badge = document.getElementById("app-update-badge");
+    if (!u || !u.update_available) { badge.style.display = "none"; return; }
+    badge.querySelector(".app-update-text").textContent =
+      `Update verfügbar: ${u.latest.tag}`;
+    const notes = badge.querySelector(".app-update-notes");
+    if (u.latest.html_url) notes.href = u.latest.html_url;
+    badge.style.display = "";
+    document.getElementById("app-update-apply").onclick = async (e) => {
+      const btn = e.target; btn.disabled = true; btn.textContent = "Aktualisiere…";
+      try {
+        await fetch("/api/update/apply", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tag: u.latest.tag, sha: u.latest.sha }),
+        });
+        btn.textContent = "Neustart läuft… (~10–30s)";
+        pollStatus();
+      } catch { btn.disabled = false; btn.textContent = "Fehler — erneut versuchen"; }
+    };
+  } catch { /* detection failure → stay hidden (conservative) */ }
+}
+async function pollStatus() {
+  const terminal = ["success", "rolled_back", "failed", "failed_rollback", "idle"];
+  try {
+    const s = (await (await fetch("/api/update/status")).json()).state;
+    if (s && terminal.includes(s.phase)) { setTimeout(checkAppUpdate, 5000); return; }
+  } catch {}
+  setTimeout(pollStatus, 4000);
+}
+checkAppUpdate();
+setInterval(checkAppUpdate, 30 * 60 * 1000);
+</script>

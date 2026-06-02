@@ -1,0 +1,91 @@
+import Link from "next/link";
+import SearchBox from "@/components/SearchBox";
+import { getStats, listDocs, type DocListItem } from "@/lib/db";
+import { categoryLabel, sortCategories } from "@/lib/categories";
+
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  let stats = null;
+  let docs: DocListItem[] = [];
+  try { stats = await getStats(); } catch { /* DB not reachable in build */ }
+  try { docs = await listDocs(); } catch { /* DB not reachable in build */ }
+
+  // Group documents by category for the browse navigation.
+  const byCategory = new Map<string, DocListItem[]>();
+  for (const d of docs) {
+    if (!byCategory.has(d.category)) byCategory.set(d.category, []);
+    byCategory.get(d.category)!.push(d);
+  }
+  const categories = sortCategories([...byCategory.keys()]);
+
+  return (
+    <main>
+      {/* Hero / Intro */}
+      <section style={{ padding: "1.5rem 0 0.5rem" }}>
+        <h1 style={{ fontSize: "2.1rem", fontWeight: 750, letterSpacing: "-0.025em", margin: "0 0 0.7rem", lineHeight: 1.12 }}>
+          __APP_TITLE__
+        </h1>
+        <p style={{ color: "var(--muted)", fontSize: 16, maxWidth: 720, lineHeight: 1.62, margin: "0 0 1.3rem" }}>
+          __APP_DESC__
+        </p>
+        <SearchBox />
+      </section>
+
+      {stats && (
+        <section style={{ display: "flex", gap: 22, flexWrap: "wrap", margin: "1.5rem 0 0.25rem", color: "var(--muted)", fontSize: 13.5 }}>
+          <span><strong style={{ color: "var(--text)", fontSize: 16 }}>{stats.document_count}</strong> Artikel</span>
+          <span><strong style={{ color: "var(--text)", fontSize: 16 }}>{stats.chunk_count}</strong> Such-Chunks</span>
+          {categories.length > 0 && (
+            <span><strong style={{ color: "var(--text)", fontSize: 16 }}>{categories.length}</strong> Themen</span>
+          )}
+        </section>
+      )}
+
+      {/* Browse by category — no search term needed */}
+      {categories.length > 0 && (
+        <section style={{ margin: "2.4rem 0 1rem" }}>
+          <h2 style={{ fontSize: "1.05rem", fontWeight: 650, letterSpacing: "-0.01em", margin: "0 0 0.4rem" }}>
+            Themen durchstöbern
+          </h2>
+          <p style={{ color: "var(--faint)", fontSize: 13.5, margin: "0 0 1.5rem" }}>
+            Alle Artikel nach Themengebiet — kein Suchbegriff nötig.
+          </p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+            {categories.map((cat) => {
+              const items = byCategory.get(cat)!;
+              return (
+                <div key={cat}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
+                    <h3 style={{ fontSize: "0.95rem", fontWeight: 600, margin: 0, color: "var(--text)" }}>
+                      {categoryLabel(cat)}
+                    </h3>
+                    <span style={{ color: "var(--faint)", fontSize: 12.5 }}>{items.length}</span>
+                  </div>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
+                    {items.map((d) => (
+                      <li key={d.slug}>
+                        <Link
+                          href={`/doc/${d.slug}`}
+                          style={{ display: "block", height: "100%", background: "var(--panel)", border: "1px solid var(--border)", borderRadius: 12, padding: "13px 15px" }}
+                        >
+                          <div style={{ fontWeight: 600, fontSize: 14.5, lineHeight: 1.35, marginBottom: d.summary ? 6 : 0 }}>{d.title}</div>
+                          {d.summary && (
+                            <p style={{ margin: 0, color: "var(--muted)", fontSize: 13, lineHeight: 1.5 }}>
+                              {d.summary.length > 130 ? d.summary.slice(0, 130).trimEnd() + " …" : d.summary}
+                            </p>
+                          )}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+    </main>
+  );
+}

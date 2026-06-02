@@ -1,0 +1,15 @@
+[Unit]
+Description=__APP_NAME__ Embedding Service (multilingual-e5-small)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/__APP_NAME__
+Environment=EMBED_MODEL=intfloat/multilingual-e5-small
+ExecStart=/opt/__APP_NAME__-embedding/bin/python -m uvicorn --app-dir scripts embedding-service:app --host 127.0.0.1 --port __EMBED_PORT__
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

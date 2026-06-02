@@ -1,0 +1,27 @@
+[Unit]
+Description=__APP_NAME__
+After=network-online.target
+Wants=network-online.target
+StartLimitBurst=10
+StartLimitIntervalSec=120
+
+[Service]
+Type=exec
+ExecStart=/opt/__APP_SLUG__/.venv/bin/python3 -m __PKG_NAME__
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=mixed
+User=__SERVICE_USER__
+Group=__SERVICE_USER__
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/etc/__APP_SLUG__ /var/lib/__APP_SLUG__
+RuntimeDirectory=__APP_SLUG__
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=__APP_SLUG__
+
+[Install]
+WantedBy=multi-user.target

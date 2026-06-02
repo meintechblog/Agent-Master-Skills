@@ -1,0 +1,14 @@
+[Unit]
+Description=Watch for __APP_SLUG__ update triggers
+Documentation=https://github.com/__GITHUB_REPO__
+# Deliberately NO Requires=/PartOf=/BindsTo= the main service unit.
+# This .path unit must remain active across main-service restarts so
+# the .service it activates can restart the main service without
+# being killed as part of the main service's cgroup.
+
+[Path]
+PathModified=/etc/__APP_SLUG__/update-trigger.json
+Unit=__APP_SLUG__-updater.service
+
+[Install]
+WantedBy=multi-user.target

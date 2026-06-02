@@ -1,0 +1,18 @@
+[Unit]
+Description=__APP_NAME__ boot-time recovery
+Documentation=https://github.com/__GITHUB_REPO__
+DefaultDependencies=yes
+After=local-fs.target
+Before=__APP_SLUG__.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/opt/__APP_SLUG__/.venv/bin/python3 -m __PKG_NAME__.recovery
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=__APP_SLUG__-recovery
+
+[Install]
+RequiredBy=__APP_SLUG__.service

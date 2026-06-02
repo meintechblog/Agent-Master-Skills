@@ -1,0 +1,21 @@
+[Unit]
+Description=__APP_SLUG__ privileged updater (node-systemd mode)
+After=network-online.target
+Wants=network-online.target
+# CRITICAL: no Requires=/BindsTo=/PartOf=__APP_SLUG__.service. This oneshot runs
+# `systemctl restart __APP_SLUG__.service` from OUTSIDE the main service's cgroup.
+# Any unit coupling would let systemd kill this updater when the main service
+# restarts, aborting the update mid-flight.
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+User=root
+Group=root
+ExecStart=/usr/bin/node /opt/__APP_SLUG__/scripts/update-apply.mjs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=__APP_SLUG__-updater
+# A full update (git fetch + npm ci + restart + 90s healthcheck) can take minutes.
+TimeoutStartSec=900
+# No Restart= — oneshot. The next trigger write re-activates it via the .path unit.
