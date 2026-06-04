@@ -15,9 +15,21 @@ DB_USER=__DB_USER__
 DB_PASS="${__APP_ENV___DB_PASS:-__DB_USER__}"
 
 echo "==> [1/N] Code aktualisieren ($APP_DIR)"
-if [ -d "$APP_DIR/.git" ]; then
-  git -C "$APP_DIR" fetch --all -q && git -C "$APP_DIR" reset --hard origin/main
+# FAIL-LOUD: Ein Nicht-git-Checkout (z.B. rsync-deployt) würde sonst LAUTLOS übersprungen
+# → deploy.sh baut+restartet STALE-Code und meldet trotzdem „fertig". Lieber hart abbrechen
+# mit Konvertierungs-Anleitung als still das Falsche deployen. (Fleet-Lehre law-master 2026-06-04)
+if [ ! -d "$APP_DIR/.git" ]; then
+  echo "FATAL: $APP_DIR ist KEIN git-Checkout (.git fehlt)." >&2
+  echo "       Ohne git kann deploy.sh den Code nicht aktualisieren → es würde STALE-Code bauen." >&2
+  echo "       In echten SSH-git-Checkout konvertieren (Produkt-Repos sind privat → SSH-Key nötig):" >&2
+  echo "         cd $APP_DIR" >&2
+  echo "         git init && git remote add origin git@github.com:meintechblog/__APP_NAME__.git" >&2
+  echo "         git config --global --add safe.directory $APP_DIR" >&2
+  echo "         git fetch origin main && git reset --hard origin/main" >&2
+  echo "       (LXC braucht ~/.ssh/id_ed25519 mit Repo-Scope; HTTPS scheitert bei privaten Repos.)" >&2
+  exit 1
 fi
+git -C "$APP_DIR" fetch --all -q && git -C "$APP_DIR" reset --hard origin/main
 cd "$APP_DIR"
 
 if [ "$WITH_KB" = "1" ]; then
