@@ -23,8 +23,8 @@ a { color: inherit; text-decoration: none; }
    .app-shell/.scroll-x/.wrap-anywhere/.bar-wrap sind opt-in-Utilities. */
 input, textarea, select { font-size: 16px; }            /* iOS-Zoom-Reset (≥16px = kein Auto-Zoom) */
 .app-shell { min-height: 100vh; min-height: 100dvh; }    /* vh-Fallback zuerst, dann dvh (mobile URL-bar) */
-.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch;
-  mask-image: linear-gradient(to right, #000 90%, transparent); }  /* horizontale Tabellen/Chips, mit Fade */
+.scroll-x { overflow-x: auto;
+  mask-image: linear-gradient(to right, #000 90%, transparent); }  /* horizontale Tabellen/Chips, mit Fade-Affordance */
 .wrap-anywhere { overflow-wrap: anywhere; }              /* lange Tokens/URLs brechen statt zu overflowen */
 .bar-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }  /* OPT-IN, NICHT global auf header */
 mark { background: rgba(110,231,183,0.22); color: #d7fff0; border-radius: 2px; padding: 0 1px; }
