@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "__APP_TITLE__",
   description: "__APP_DESC__",
+};
+
+// Mobile-responsive Default: width=device-width, initial-scale=1.
+// BEWUSST OHNE viewport-fit=cover — cover braucht env(safe-area-inset-*) an
+// fixierten Rändern, sonst Footer-unter-Home-Indicator-Bug (per-App opt-in).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -7,13 +7,26 @@
   --muted: #9a9aa6;
   --faint: #6b6b76;
   --accent: #6ee7b7;
+  --fs-body: clamp(0.875rem, 0.8rem + 0.4vw, 1rem);  /* fluid body scale, mobile→desktop */
 }
 
 html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased; }
+body { font-size: var(--fs-body); }
 * { box-sizing: border-box; }
 a { color: inherit; text-decoration: none; }
+
+/* --- Mobile-responsive defaults (Fleet-Pattern, Codex+GLM-gesparrt) ---
+   Siehe chat-llm-master/docs/mobile-responsive-fleet-patterns.md (SSoT).
+   font-size:16px auf Form-Feldern verhindert den iOS-Auto-Zoom-on-Focus.
+   .app-shell/.scroll-x/.wrap-anywhere/.bar-wrap sind opt-in-Utilities. */
+input, textarea, select { font-size: 16px; }            /* iOS-Zoom-Reset (≥16px = kein Auto-Zoom) */
+.app-shell { min-height: 100vh; min-height: 100dvh; }    /* vh-Fallback zuerst, dann dvh (mobile URL-bar) */
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch;
+  mask-image: linear-gradient(to right, #000 90%, transparent); }  /* horizontale Tabellen/Chips, mit Fade */
+.wrap-anywhere { overflow-wrap: anywhere; }              /* lange Tokens/URLs brechen statt zu overflowen */
+.bar-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }  /* OPT-IN, NICHT global auf header */
 mark { background: rgba(110,231,183,0.22); color: #d7fff0; border-radius: 2px; padding: 0 1px; }
 
 .prose-doc { line-height: 1.7; }
