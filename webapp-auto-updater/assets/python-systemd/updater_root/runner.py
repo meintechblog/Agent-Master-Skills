@@ -199,6 +199,13 @@ class UpdateRunnerPrimitives:
     make_dedup_store: Callable[[Path], NonceDedupStore]
     # Healthcheck
     make_health_checker: Callable[..., HealthChecker]
+    # Origin propagation (optional, backward-compatible for existing fakes/tests):
+    # git clone --shared points origin at the LOCAL predecessor release path —
+    # without propagating the real remote URL the ancestor security check
+    # freezes on the predecessor's state and every follow-up update dies with
+    # sha_not_on_main (verified on a private-repo deployment, 2026-06-12).
+    git_get_origin_url: "Callable[[Path], Awaitable[str | None]] | None" = None
+    git_set_origin_url: "Callable[[Path, str], Awaitable[Any]] | None" = None
 
 
 # ---------------------------------------------------------------------
@@ -304,6 +311,20 @@ class UpdateRunner:
             status.write_phase("extract")
             new_release = self._new_release_dir(trigger.target_sha)
             await self._p.git_clone_shared(current_release, new_release)
+            # 5b. Origin propagation: --shared points origin at the local
+            # predecessor path -> carry the running release's real remote URL
+            # onto the new release. ONLY propagate real remote URLs
+            # (http/https/ssh/git@) — a local path means the chain was already
+            # broken; don't forward it, just warn.
+            if self._p.git_get_origin_url and self._p.git_set_origin_url:
+                try:
+                    cur_origin = await self._p.git_get_origin_url(current_release)
+                    if cur_origin and not cur_origin.startswith(("/", ".")):
+                        await self._p.git_set_origin_url(new_release, cur_origin)
+                    elif cur_origin:
+                        log.warning("origin_is_local_path", origin=cur_origin)
+                except Exception as e:  # noqa: BLE001
+                    log.warning("origin_propagation_failed", error=str(e))
             await self._p.git_checkout_detach(new_release, trigger.target_sha)
 
             # 6. pip dry-run (inside new venv)

@@ -159,6 +159,41 @@ async def git_clone_shared(source: Path, dest: Path) -> GitResult:
     )
 
 
+async def git_get_origin_url(repo_dir: Path) -> str | None:
+    """Return ``origin``'s URL, or None if unreadable."""
+    r = await run_git(
+        "-C",
+        str(repo_dir),
+        "remote",
+        "get-url",
+        "origin",
+        cwd=repo_dir,
+    )
+    return r.stdout.strip() if r.ok and r.stdout.strip() else None
+
+
+async def git_set_origin_url(repo_dir: Path, url: str) -> GitResult:
+    """Run ``git -C <repo_dir> remote set-url origin <url>``.
+
+    ``git clone --shared <old-release>`` sets origin to the LOCAL
+    predecessor release path. The security ancestor check
+    (``merge-base --is-ancestor origin/main``) then validates against a
+    FROZEN state on the next update -> every update fails with
+    ``sha_not_on_main`` once the real origin has new commits. The runner
+    therefore propagates the running release's real remote URL onto each
+    new release (see runner.py step 5b).
+    """
+    return await run_git(
+        "-C",
+        str(repo_dir),
+        "remote",
+        "set-url",
+        "origin",
+        url,
+        cwd=repo_dir,
+    )
+
+
 async def git_checkout_detach(repo_dir: Path, sha: str) -> GitResult:
     """Run ``git -C <repo_dir> checkout --detach --quiet <sha>``.
 

@@ -92,6 +92,8 @@ def _make_production_primitives(
         is_sha_on_main=git_ops.is_sha_on_main,
         git_rev_parse=git_ops.git_rev_parse,
         git_clone_shared=git_ops.git_clone_shared,
+        git_get_origin_url=git_ops.git_get_origin_url,
+        git_set_origin_url=git_ops.git_set_origin_url,
         git_checkout_detach=git_ops.git_checkout_detach,
         git_fetch=git_ops.git_fetch,
         # Disk
