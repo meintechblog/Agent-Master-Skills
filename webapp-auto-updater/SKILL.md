@@ -60,6 +60,16 @@ eingehalten. **Vor dem ersten Release `references/github-release-conventions.md`
 - **Release am main-HEAD schneiden:** `gh release create vX.Y.Z --target main`. Der Updater installiert `origin/main` HEAD (== Release-Commit) und akzeptiert nur SHAs die Ancestor von `origin/main` sind. Also: erst auf main mergen+pushen, dann taggen.
 - **Ziel-Box = git-Clone** (blue-green via install.sh), nicht rsync — sonst kann der git-basierte Updater nicht auschecken. `update.enabled=true` + `update.github_repo=owner/repo` in der config.yaml.
 - **Betreiber-Cheatsheet:** Feature mergen → Version bumpen → push → `gh release create vX.Y.Z --target main` → fertig, alle Instanzen ziehen beim nächsten Check / um 04:00 nach.
+- **🆕 Privates Repo / origin-Kette (Fix 2026-06-12):** `git clone --shared` vom Vorgänger-Release
+  setzt `origin` auf den LOKALEN Pfad → der Ancestor-Security-Check (`merge-base --is-ancestor
+  origin/main`) prüft beim nächsten Update einen eingefrorenen Stand → jedes Update stirbt mit
+  `sha_not_on_main`. **Strukturell gefixt im Template** (runner.py Schritt 5b propagiert die echte
+  Remote-URL des laufenden Release auf jeden neuen; git_ops `git_get_origin_url`/`git_set_origin_url`).
+  **Bestands-Deployments brauchen den EINMALIGEN Hand-Fix** (danach trägt die Propagation):
+  (1) `git -C /opt/<app>/releases/current remote set-url origin https://github.com/<owner>/<repo>.git`;
+  (2) bei privatem Repo Token ROOT-ONLY: `git config credential.helper store` + Token nach
+  `/root/.git-credentials` (chmod 600) — NIE in `.git/config` (user-lesbar); (3) `--shared`-Alternates:
+  alte Release-Dirs nicht löschen, solange Nachfolger deren Object-Store referenzieren.
 
 ## Stack-Scope
 
