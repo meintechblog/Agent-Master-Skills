@@ -73,6 +73,15 @@ eingehalten. **Vor dem ersten Release `references/github-release-conventions.md`
 
 ## Stack-Scope
 
+- **🆕 Gehärtete Next.js-Referenz-Implementierung (2026-06-12):** `finanzamt-master@8be4f15`
+  (portiert aus stromnetz-master, Codex-R22-refuted, 2 Runden GO) trägt 4 Härtungen, die beim
+  nächsten Template-Pass in die node-/nextjs-Assets gehören und bis dahin beim Scaffolden als
+  Referenz dienen: (1) CSRF/Cross-Site-Guard (Sec-Fetch-Site) auf apply+config-Routen,
+  (2) forward-only-Gate (kein Downgrade auf alte main-Commits), (3) konsistenter Rebuild im
+  Recovery- UND Build-Fehler-Pfad, (4) Config-Klemmung (nightly_hour 0-23) beim Lesen+Schreiben.
+  Kern-Dateien: `scripts/update-apply.mjs`, `scripts/recovery.mjs`, `src/app/api/update/*`.
+
+
 - **python-systemd** — voll unterstützt, 1:1 generalisiert aus einem Produktions-Stack (LXC/systemd/git-blue-green).
 - **node-systemd** — voll unterstützt, turn-key. Node-Web-App (bare http/Fastify/Express) auf systemd/LXC. Gold-Standard wie python-systemd, an Node adaptiert: release-driven compare-API-Detection, 2-Prozess-Privileg-Trennung (root-oneshot via `.path`-Trigger), in-place `git checkout` + preflight + `npm ci` + Healthcheck + Rollback + Recovery-Unit. Aufruf: `--stack node-systemd`. ⚠ Rollback-/Recovery-Leg vor Produktiv-Vertrauen per Fail-Inject testen. Details: `assets/node-systemd/README.md`.
 - **mac-launchd-node** — Node-App auf macOS via user-`launchd` (kein root, kein systemd, in-place `git checkout -B main` + `launchctl kickstart`, detached self-contained Apply-Worker, compare-API-Detection robust gegen verwaiste Tags). Aus einer Produktions-Referenz-Implementierung templatet. Aufruf: `--stack mac-launchd-node --launchd-label com.you.app`. ⚠ **Rollback-on-failure-Leg ist UNTESTED** — vor Produktiv-Vertrauen einen Fail-Inject-Test fahren. Details: `assets/mac-launchd-node/README.md`.
